@@ -1,0 +1,22 @@
+# Configuration for Cog ⚙️
+# Reference: https://cog.run/yaml
+
+build:
+  gpu: false
+
+  python_version: "3.12"
+  python_packages:
+    - "requests==2.32.3"
+    - "aiohttp==3.10.1"
+    - "Pillow==10.4.0"
+
+  run:
+    # Install latest prerelease of Cog that supports concurrent predictions
+    - --mount=type=cache,target=/root/.cache/pip pip install cog==0.10.0a20
+    # Symlink pip to no-op to prevent prerelease Cog from being overwritten
+    - ln -sf $(which echo) $(which pip)
+
+predict: "predict.py:Predictor"
+
+concurrency:
+  max: 16

@@ -1,0 +1,28 @@
+#!/bin/bash -eux -o pipefail
+
+v=$(cog --version)
+
+# Check if the output contains "0.10"
+if [[ $v == *"0.10.0"* ]]; then
+    echo "Async cog found, building model"
+else
+    echo "Nope! rebuild with async cog"
+    exit -1
+fi
+
+cog build -t my-model
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    DATA_URI=$(echo "data:application/octet-stream;base64,$(base64 < .api-key)")
+else
+    # Linux and others
+    DATA_URI=$(echo "data:application/octet-stream;base64,$(base64 -w 0 < .api-key)")
+fi
+
+cat << EOF > add-bfl-api-key.Dockerfile
+FROM my-model
+ENV COG_WEIGHTS="$DATA_URI"
+EOF
+
+docker buildx build --platform linux/amd64 -f add-api-key.Dockerfile -t r8.im/usuername/my-model .
