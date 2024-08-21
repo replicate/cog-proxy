@@ -20,7 +20,7 @@ else
     DATA_URI=$(echo "data:application/octet-stream;base64,$(base64 -w 0 < .api-key)")
 fi
 
-cat << EOF > add-bfl-api-key.Dockerfile
+cat << EOF > add-api-key.Dockerfile
 FROM my-model
 ENV COG_WEIGHTS="$DATA_URI"
 EOF
